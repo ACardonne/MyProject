@@ -1,7 +1,6 @@
 #ifndef SUDOKU_H
 #define  SUDOKU_H
 
-int test();
 
 int **initSudoku();
 
@@ -13,5 +12,6 @@ int show(int**);
 int testligne(int**,int randNumb, int lnum);
 int testcol(int** tab, int randNumb, int cnum);
 int testcarre(int** tab, int randNumb, int cnum, int lnum);
+int ** creationManuelleSudoku(char[82]);
 
 #endif
