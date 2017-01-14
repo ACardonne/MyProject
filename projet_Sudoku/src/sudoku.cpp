@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <ctime>
+#include "../include/solveur.h"
+#include <string.h>
+
 
 int **initSudoku()
 {
@@ -26,7 +29,12 @@ int show(int** tab){ // equivalent to int *tab[][]
     printf("     ");
     for (int j = 0; j < 9; j++)
     {
-      printf("%d ", tab[i][j]);
+      if(tab[i][j] == 0){
+        printf("- ");
+      }
+      else{
+        printf("%d ", tab[i][j]);
+      }
     }
     printf("\n");
   }
@@ -73,7 +81,18 @@ int **completefirstline(int** tab){
   }
   return tab;
 }
-
+int ** duplicateSudoku(int ** tab){
+  int** tableau2D = new int*[9];
+  for (int i = 0; i < 9; i++)
+  {
+    tableau2D[i] = new int[9];
+    for (int j = 0; j < 9; j++)
+    {
+      tableau2D[i][j] = tab[i][j];
+    }
+  }
+  return tableau2D; // return tab adres
+}
 // prend en argument un sudoku, un nombre à tester et son num de ligne. Renvoie 1 si autorisé, 0 sinon.
 int testligne(int** tab, int randNumb, int lnum){
   int res = 1;
@@ -118,10 +137,95 @@ int ** creationManuelleSudoku(char* Str){
   return res;
 }
 
+int ** evidageGrilleSudoku(int ** tab){
+  int flag = 0;
+  int num_ligne;
+  int num_colomne;
+
+  for(int i =0; i < 50; i++){ // retire 15 chiffres du sudoku
+    flag = 0;
+    while(flag == 0){
+      num_ligne = rand()%(9);
+      num_colomne = rand()%(9);
+      if(tab[num_ligne][num_colomne]!=0){
+        tab[num_ligne][num_colomne] = 0;
+        flag = 1;
+      }
+    }
+  }
+  return tab;
+}
+// génère, affiche et renvoie une grille de sudoku brutalement solvable
+int ** Easy_generationSudoku(){
+  int ** res = completefirstline(initSudoku()); // génère un sudoku plein;
+  int ** resToTest;
+  int flag = 0;
+  while(flag !=1){
+   resToTest = evidageGrilleSudoku(duplicateSudoku(res));
+   show(resToTest);
+   if(Easy_canBeSolved(duplicateSudoku(resToTest))){
+     flag = 1;
+   }
+  }
+  show(resToTest);
+  return resToTest;
+}
+void Start_EasySudoku(){
+  int flag = 0;
+  int ** sudoku = Easy_generationSudoku(); // génère et affiche un sudoku facile
+  char ligne_colomne_valeur[3];
+  while(flag == 0){
+    play(sudoku, askPlayer(ligne_colomne_valeur));
 
 
+    if (isComplete(sudoku)){
+      flag = 1;
+      printf("success");
+    }
+  }
 
+  return;
+}
+char * askPlayer(char* ligne_colomne_valeur){
+    printf("Saisissez 3 chiffres : ligne, colomne et valeur puis appuyez sur entrée \n");
+    fgets(ligne_colomne_valeur, 4, stdin);
+    //printf("Vous avez saisi : %s \n\n", ligne_colomne_valeur);
+    clean(ligne_colomne_valeur);
+    return ligne_colomne_valeur;
+}
+int** play(int** sudoku, char* ligne_colomne_valeur){
+    int ligne = (char) ligne_colomne_valeur[0]-48;
+    int colomne = (char) ligne_colomne_valeur[1]-48;
+    int valeur = (char) ligne_colomne_valeur[2]-48;
+    if(sudoku[ligne][colomne] == 0){
+      sudoku[ligne][colomne] = valeur;
+    }
+    else{
+      printf("La case [%d,%d] contient déjà un %d", ligne, colomne, sudoku[ligne][colomne]);
+    }
+    show(sudoku);
+    return sudoku;
+}
+static void purger(void)
+{
+    int c;
 
+    while ((c = getchar()) != '\n' && c != EOF)
+    {}
+}
 
+static void clean (char *chaine)
+{
+    char *p = strchr(chaine, '\n');
 
+    if (p)
+    {
+        *p = 0;
+    }
+
+    else
+    {
+        purger();
+    }
+}
 //
